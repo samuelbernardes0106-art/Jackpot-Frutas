@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jackpot de Frutas - Simulador</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: #fff;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 {
+            color: #ff4444;
+        }
+        .fruits {
+            font-size: 60px;
+            margin: 20px 0;
+        }
+        input[type="number"] {
+            padding: 10px;
+            font-size: 18px;
+            width: 150px;
+            border-radius: 10px;
+            border: none;
+            margin-right: 10px;
+        }
+        #lever-btn {
+            font-size: 50px;      
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        #lever-btn:active {
+            transform: translateY(5px);  
+        }
+        .manual {
+            text-align: left;
+            max-width: 400px;
+            margin: 40px auto;
+            background: #222;
+            padding: 20px;
+            border-radius: 15px;
+        }
+        .manual h2 {
+            text-align: center;
+            color: #ff8888;
+        }
+        .result, .earned {
+            margin-top: 30px;
+            font-size: 24px;
+        }
+        .earned {
+            color: #00ff44;
+        }
+    </style>
+</head>
+<body>
+    <h1>Jackpot de Frutas - Simulador</h1>
+
+    <div>
+        <input type="number" id="deposit" placeholder="Valor a apostar" value="10">
+        <button id="lever-btn" onclick="pullLever()">🔴</button>
+    </div>
+  
+    <div class="fruits" id="fruits">🍎 🍎 🍎</div>
+
+    <div class="result" id="result">Multiplicador: 1x</div>
+    <div class="earned" id="earned">Valor recebido: 0</div>
+
+    <div class="manual">
+        <h2>Manual do Jackpot</h2>
+        <ul>
+            <li>🍎 Básica — 3 iguais: x2</li>
+            <li>🍉 Básica melhor — 3 iguais: x3</li>
+            <li>🌶️ Mediana — 3 iguais: x4</li>
+            <li>7️⃣ Perfeito — 3 iguais: x5</li>
+            <li>2 iguais + 1 diferente: multiplicador do par</li>
+            <li>3 diferentes: perda</li>
+        </ul>
+        <p><em>O valor mostrado é apenas simulado, você não ganha dinheiro de verdade.</em></p>
+    </div>
+
+    <script>
+        const symbols = [
+            {emoji: '🍎', multiplier: 2},
+            {emoji: '🍉', multiplier: 3},
+            {emoji: '🌶️', multiplier: 4},
+            {emoji: '7️⃣', multiplier: 5}
+        ];
+
+        function pullLever() {
+            const deposit = parseFloat(document.getElementById('deposit').value);
+            if(isNaN(deposit) || deposit <= 0){
+                alert('Coloque um valor válido!');
+                return;
+            }
+
+            // gerar 3 símbolos aleatórios
+            const slot = [];
+            for (let i = 0; i < 3; i++) {
+                const randomIndex = Math.floor(Math.random() * symbols.length);
+                slot.push(symbols[randomIndex]);
+            }
+
+            // mostrar os símbolos
+            document.getElementById('fruits').innerText = slot.map(s => s.emoji).join(' ');
+
+            // calcular multiplicador
+            let multiplier = 1;
+            if (slot[0].emoji === slot[1].emoji && slot[1].emoji === slot[2].emoji) {
+                multiplier = slot[0].multiplier; // 3 iguais
+            } else if (slot[0].emoji === slot[1].emoji || slot[0].emoji === slot[2].emoji || slot[1].emoji === slot[2].emoji) {
+                let pair = [];
+                if (slot[0].emoji === slot[1].emoji) pair = [slot[0]];
+                else if (slot[0].emoji === slot[2].emoji) pair = [slot[0]];
+                else pair = [slot[1]];
+                multiplier = pair[0].multiplier; // 2 iguais + 1 diferente
+            } else {
+                multiplier = 0; // 3 diferentes = perda
+            }
+
+            // valor recebido aleatório baseado no depósito
+            const variance = 0.2; 
+            const randomFactor = 1 + (Math.random() * variance - variance/2);
+            const earned = deposit * multiplier * randomFactor;
+
+            document.getElementById('result').innerText = multiplier === 0 ? `Você perdeu!` : `Multiplicador: ${multiplier}x`;
+            document.getElementById('earned').innerText = `Valor recebido: ${earned.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>
